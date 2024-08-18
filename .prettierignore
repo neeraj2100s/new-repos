@@ -1,0 +1,20 @@
+# Ignore all node_modules directories
+node_modules/
+
+# Ignore build output directories
+dist/
+build/
+
+# Ignore all JSON files
+*.json
+
+# Ignore specific files
+src/ignored-file.js
+
+# Ignore all files in a specific directory
+public/assets/
+
+# Ignore all Markdown files
+*.md
+.env
+*.env
