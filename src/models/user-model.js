@@ -1,96 +1,101 @@
-import mongoose, { Schema } from "mongoose";
-import jwt from "jsonwebtoken"
-import bcrypt from "bcrypt"
+import mongoose, { Schema } from "mongoose"; // Mongoose aur Schema ko import kar rahe hain
+import jwt from "jsonwebtoken"; // JWT (JSON Web Token) ko import kar rahe hain
+import bcrypt from "bcrypt"; // Bcrypt ko import kar rahe hain, jo password ko hash karne ke liye use hota hai
 
+// User ka schema define kar rahe hain
 const userSchema = new Schema({
   username: {
     type: String,
-    unique: true,
-    trim: true,
-    lowercase: true,
-    index: true,
-    required: true,
+    unique: true, // Unique hona chahiye
+    trim: true, // Extra spaces hata raha hai
+    lowercase: true, // Lowercase mein convert kar raha hai
+    index: true, // Index banane ke liye
+    required: true, // Required field hai
   },
   Fullname: {
     type: String,
-    trim: true,
-    lowercase: true,
-    index: true,
-    required: true,
+    trim: true, // Extra spaces hata raha hai
+    lowercase: true, // Lowercase mein convert kar raha hai
+    index: true, // Index banane ke liye
+    required: true, // Required field hai
   },
   email: {
     type: String,
-    unique: true,
-    trim: true,
-    lowercase: true,
-    required: true,
+    unique: true, // Unique hona chahiye
+    trim: true, // Extra spaces hata raha hai
+    lowercase: true, // Lowercase mein convert kar raha hai
+    required: true, // Required field hai
   },
   avatar: {
     type: String,
-    unique: true,
-    trim: true,
-    lowercase: true,
-    required: true,
+    unique: true, // Unique hona chahiye
+    trim: true, // Extra spaces hata raha hai
+    lowercase: true, // Lowercase mein convert kar raha hai
+    required: true, // Required field hai
   },
   coverImage: {
     type: String,
-    unique: true,
-    trim: true,
-    lowercase: true,
+    unique: true, // Unique hona chahiye
+    trim: true, // Extra spaces hata raha hai
+    lowercase: true, // Lowercase mein convert kar raha hai
   },
   password: {
     type: String,
-    unique: true,
-    lowercase: true,
-    required: [true, "Password is required"],
+    unique: true, // Unique hona chahiye
+    lowercase: true, // Lowercase mein convert kar raha hai
+    required: [true, "Password is required"], // Password required hai
   },
   refreshToken: {
     type: String,
-    unique: true,
+    unique: true, // Unique hona chahiye
   },
   watchHistory: [{
-    type: Schema.Types.ObjectId,
-    ref: "video",
+    type: Schema.Types.ObjectId, // ObjectId type ka array hai
+    ref: "video", // Video collection se reference hai
   }],
-  timestamps:true
+  timestamps: true // Timestamps automatically add ho jayenge (createdAt, updatedAt)
 });
 
-userSchema.pre("save", async function(next){
-  if(!this.isModified("password"))return next();
- this.password=bcrypt.hash(this.password,10)
- next()
+// Password save karne se pehle hash kar raha hai
+userSchema.pre("save", async function (next) {
+  if (!this.isModified("password")) return next(); // Agar password modify nahi hua toh aage badh jao
+  this.password = bcrypt.hash(this.password, 10); // Password ko hash kar rahe hain
+  next(); // Next middleware ko call kar raha hai
+});
 
-})
-userSchema.method.isPasswordCorrect=async function (password) {
-  
- return await bcrypt.compare(password,this.password)
-}
-userSchema.methods.generateAccessToken= function(){
- return jwt.sign({
-  _id:this._id,
-  email:this.email,
-  username:this.username,
-  Fullname:this.Fullname
- },
- process.env.ACCESS_TOKEN_SECRET,
- {
-  expiresIn:process.env.ACCESS_TOKEN_EXPIRY
- }
+// Password compare karne ka method bana rahe hain
+userSchema.method.isPasswordCorrect = async function (password) {
+  return await bcrypt.compare(password, this.password); // Bcrypt se password compare kar rahe hain
+};
 
-)
-}
-userSchema.methods.generateRefreshToken=function(){
+// Access token generate karne ka method
+userSchema.methods.generateAccessToken = function () {
   return jwt.sign({
-    _id:this._id,
-   
-   },
-   process.env.REFRESH_TOKEN_SECRET,
-   {
-    expiresIn:process.env.REFRESH_TOKEN_EXPIRY
-   }
-  
-  )
-}
+    _id: this._id,
+    email: this.email,
+    username: this.username,
+    Fullname: this.Fullname
+  },
+    process.env.ACCESS_TOKEN_SECRET, // Secret key environment variable se le rahe hain
+    {
+      expiresIn: process.env.ACCESS_TOKEN_EXPIRY // Expiry time environment variable se le rahe hain
+    }
+  );
+};
+
+// Refresh token generate karne ka method
+userSchema.methods.generateRefreshToken = function () {
+  return jwt.sign({
+    _id: this._id,
+  },
+    process.env.REFRESH_TOKEN_SECRET, // Secret key environment variable se le rahe hain
+    {
+      expiresIn: process.env.REFRESH_TOKEN_EXPIRY // Expiry time environment variable se le rahe hain
+    }
+  );
+};
+
+// User model create kar rahe hain
 const User = mongoose.model("User", userSchema);
 
-export default User;
+export default User; // User model ko export kar rahe hain
