@@ -12,7 +12,7 @@ const userSchema = new Schema({
     index: true, // Index banane ke liye
     required: true, // Required field hai
   },
-  Fullname: {
+  fullname: {
     type: String,
     trim: true, // Extra spaces hata raha hai
     lowercase: true, // Lowercase mein convert kar raha hai
@@ -52,19 +52,20 @@ const userSchema = new Schema({
   watchHistory: [{
     type: Schema.Types.ObjectId, // ObjectId type ka array hai
     ref: "video", // Video collection se reference hai
-  }],
+  }]
+}, {
   timestamps: true // Timestamps automatically add ho jayenge (createdAt, updatedAt)
 });
 
 // Password save karne se pehle hash kar raha hai
 userSchema.pre("save", async function (next) {
   if (!this.isModified("password")) return next(); // Agar password modify nahi hua toh aage badh jao
-  this.password = bcrypt.hash(this.password, 10); // Password ko hash kar rahe hain
+  this.password = await bcrypt.hash(this.password, 10); // Password ko hash kar rahe hain
   next(); // Next middleware ko call kar raha hai
 });
 
 // Password compare karne ka method bana rahe hain
-userSchema.method.isPasswordCorrect = async function (password) {
+userSchema.methods.isPasswordCorrect = async function (password) {
   return await bcrypt.compare(password, this.password); // Bcrypt se password compare kar rahe hain
 };
 
@@ -74,7 +75,7 @@ userSchema.methods.generateAccessToken = function () {
     _id: this._id,
     email: this.email,
     username: this.username,
-    Fullname: this.Fullname
+    fullname: this.fullname // Corrected property name
   },
     process.env.ACCESS_TOKEN_SECRET, // Secret key environment variable se le rahe hain
     {
