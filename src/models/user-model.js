@@ -28,15 +28,12 @@ const userSchema = new Schema({
   },
   avatar: {
     type: String,
-    unique: true, // Unique hona chahiye
-    trim: true, // Extra spaces hata raha hai
+    // Extra spaces hata raha hai
     lowercase: true, // Lowercase mein convert kar raha hai
     required: true, // Required field hai
   },
   coverImage: {
     type: String,
-    unique: true, // Unique hona chahiye
-    trim: true, // Extra spaces hata raha hai
     lowercase: true, // Lowercase mein convert kar raha hai
   },
   password: {
@@ -68,7 +65,7 @@ userSchema.pre("save", async function (next) {
 userSchema.methods.isPasswordCorrect = async function (password) {
   return await bcrypt.compare(password, this.password); // Bcrypt se password compare kar rahe hain
 };
-
+///
 // Access token generate karne ka method
 userSchema.methods.generateAccessToken = function () {
   return jwt.sign({

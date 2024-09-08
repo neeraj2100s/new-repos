@@ -20,3 +20,7 @@ class ApiResponse {
         // jo indicate karta hai ki request successful nahi hui.
     }
 }
+
+
+
+export default ApiResponse
